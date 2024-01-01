@@ -26,12 +26,27 @@ async function createCourse(){
 }
 
 async function getCourses() {
+    const pageNumber = 2;
+    const pageSize = 10;
+
     const courses = await Course
     .find({ author: 'Mosh', isPublished: true })
-    .limit(10)
+    .skip((pageNumber - 1) * pageSize)
+    .limit(pageSize)
     .sort({ name:1 })
-    .select({ name:1, tags:1 });
+    .select({ name: 1, tags: 1});
     console.log(courses);
 }
 
-getCourses();
+async function updateCourse(id) {
+    const course = await Course.findById(id);
+    if (!course) return;
+
+    course.isPublished = true;
+    course.author = 'Another Author';
+
+    const result = await course.save();
+    console.log(result);
+}
+
+updateCourse('657885c47c8565c2d4677378');
