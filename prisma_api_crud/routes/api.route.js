@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient()
 
 router.get('/products', async (req, res, next) => {
   try {
     const products = await prisma.product.findMany({
-      include: { Category: true},
+      include: { category: true},
     })
 
     const categories = await prisma.category.findMany({
@@ -27,7 +27,7 @@ router.get('/product/:id', async (req, res, next) => {
       where: {
         id: Number(id)
       },
-      include: { Category: true},
+      include: { category: true},
     })
     res.json(product)
   } catch (error) {
@@ -50,7 +50,7 @@ router.post('/products', async (req, res, next) => {
 router.delete('/product/:id', async (req, res, next) => {
   try {
     const { id } = req.params
-    const deletedProduct = await prisma.delete({
+    const deletedProduct = await prisma.product.delete({
       where: {
         id: Number(id)
       }
@@ -62,8 +62,22 @@ router.delete('/product/:id', async (req, res, next) => {
 });
 
 
-router.patch('/products/:id', async (req, res, next) => {
-  res.send({ message: 'Ok api is working 🚀' });
+router.patch('/product/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const product = await prisma.product.update({
+      where: {
+        id: Number(id),  
+      },
+      data: req.body,
+      include: {
+        category: true,
+      }
+    })
+    res.json(product)
+  } catch (error) {
+    next(error)
+  }
 });
 
 module.exports = router;
